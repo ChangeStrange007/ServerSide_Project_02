@@ -1,8 +1,5 @@
 # LoL Item Shop – Full-Stack CRRUD Project
 
-A REST API for League of Legends items, a Flask web app that uses it, and pytest tests.
-Needs only **Python 3.10+** and **VS Code** (SQLite file DB, created automatically).
-
 ## Layout
 ```
 app/
