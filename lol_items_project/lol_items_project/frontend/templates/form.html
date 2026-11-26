@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ 'New item' if mode == 'create' else 'Edit ' ~ (item.name or 'item') }}{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('index') if mode == 'create' else url_for('detail', item_id=item.id) }}">← Back</a>
+<h1>{{ 'Create item' if mode == 'create' else 'Edit item' }}</h1>
+
+{% if errors %}
+  <div class="flash flash-error">
+    <strong>Couldn't save:</strong>
+    <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  </div>
+{% endif %}
+
+<form class="card form" method="post"
+      action="{{ url_for('create') if mode == 'create' else url_for('edit', item_id=item.id) }}">
+
+  <div class="grid">
+    <label class="span-2">Name *
+      <input type="text" name="name" maxlength="100" required value="{{ item.name or '' }}" placeholder="Infinity Edge">
+    </label>
+
+    <label>Category *
+      <select name="category" required>
+        <option value="" disabled{% if not item.category %} selected{% endif %}>Choose…</option>
+        {% for c in CATEGORIES %}
+          <option value="{{ c }}"{% if item.category == c %} selected{% endif %}>{{ c|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Gold cost *
+      <input type="number" name="gold_cost" min="0" max="20000" required value="{{ item.gold_cost if item.gold_cost is not none else '' }}">
+    </label>
+
+    <label class="span-2">Description
+      <textarea name="description" rows="3" maxlength="2000">{{ item.description or '' }}</textarea>
+    </label>
+  </div>
+
+  <h2>Stats</h2>
+  <div class="grid grid-stats">
+    {% for key, label, suffix, is_float in STATS %}
+      <label>{{ label }}{{ ' (%)' if suffix }}
+        <input type="number" name="{{ key }}" min="0" step="{% if is_float %}0.1{% else %}1{% endif %}"
+               value="{{ item[key] if item[key] is defined and item[key] is not none else 0 }}">
+      </label>
+    {% endfor %}
+  </div>
+
+  <label class="block">Passive
+    <textarea name="passive" rows="3" maxlength="2000">{{ item.passive or '' }}</textarea>
+  </label>
+
+  <label class="check">
+    <input type="checkbox" name="is_purchasable"{% if item.is_purchasable %} checked{% endif %}> Purchasable in shop
+  </label>
+
+  <div class="row-actions">
+    <button class="btn btn-gold" type="submit">{{ 'Create item' if mode == 'create' else 'Save changes' }}</button>
+    <a class="btn btn-ghost" href="{{ url_for('index') if mode == 'create' else url_for('detail', item_id=item.id) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

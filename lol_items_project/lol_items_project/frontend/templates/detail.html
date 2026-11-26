@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }}{% endblock %}
+
+{% block content %}
+<a class="back" href="{{ url_for('index') }}">← All items</a>
+
+<article class="card">
+  <header class="card-head">
+    <div>
+      <h1>{{ item.name }}</h1>
+      <span class="tag tag-{{ item.category }}">{{ item.category }}</span>
+      {% if not item.is_purchasable %}<span class="tag tag-muted">not purchasable</span>{% endif %}
+    </div>
+    <div class="price gold">{{ "{:,}".format(item.gold_cost) }}g</div>
+  </header>
+
+  {% if item.description %}<p class="lead">{{ item.description }}</p>{% endif %}
+
+  <h2>Stats</h2>
+  {% set ns = namespace(any=false) %}
+  <ul class="stat-list">
+    {% for key, label, suffix, _f in STATS %}
+      {% if item[key] %}
+        {% set ns.any = true %}
+        <li><span>{{ label }}</span><strong>+{{ item[key] }}{{ suffix }}</strong></li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% if not ns.any %}<p class="muted">This item has no stats.</p>{% endif %}
+
+  {% if item.passive %}
+    <h2>Passive</h2>
+    <p>{{ item.passive }}</p>
+  {% endif %}
+
+  <footer class="meta">
+    ID {{ item.id }} · created {{ item.created_at[:16]|replace("T", " ") }} · updated {{ item.updated_at[:16]|replace("T", " ") }}
+  </footer>
+
+  <div class="row-actions">
+    <a class="btn btn-gold" href="{{ url_for('edit', item_id=item.id) }}">Edit</a>
+    <form class="inline" method="post" action="{{ url_for('delete', item_id=item.id) }}"
+          data-confirm="Delete this item?">
+      <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
+  </div>
+</article>
+{% endblock %}
